@@ -1,16 +1,18 @@
-# Etapa 1: obtener busybox desde Alpine
+# Etapa 1: obtener BusyBox desde Alpine
 FROM alpine:latest AS builder
-RUN cp /bin/busybox /busybox
 
-# Etapa 2: imagen final basada en Wings
+# Copiamos el binario real de busybox desde Alpine
+RUN cp /bin/busybox /tmp/busybox
+
+# Etapa 2: Imagen base de Wings
 FROM ghcr.io/pterodactyl/wings:latest
 
-# Copiar busybox preinstalado
-COPY --from=builder /busybox /bin/busybox
+# Copiamos el binario busybox desde la etapa anterior
+COPY --from=builder /tmp/busybox /bin/busybox
 
-# Crear enlaces simbólicos manualmente (sin ejecutar comandos)
-# BusyBox permite que sh se ejecute directamente usando su nombre
-# Así que solo hacemos un enlace básico para tener "sh"
-ADD ["busybox", "/bin/sh"]
+# Creamos un enlace simbólico manual para "sh"
+# (sin usar RUN porque esta imagen no tiene shell)
+# Esto usa la instrucción Docker ADD para duplicar el archivo con otro nombre
+ADD --chown=0:0 busybox /bin/sh
 
 ENTRYPOINT ["/usr/bin/wings"]
