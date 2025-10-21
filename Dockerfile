@@ -1,7 +1,8 @@
 FROM ghcr.io/pterodactyl/wings:latest
 
-# Instala bash si no está incluido
-RUN apk add --no-cache bash
+# Actualiza e instala bash usando apt (Ubuntu/Debian base)
+USER root
+RUN apt-get update && apt-get install -y bash
 
-# Establece bash como shell por defecto (opcional)
+# Establece bash como shell por defecto
 CMD ["/bin/bash"]
