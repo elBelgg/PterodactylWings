@@ -1,15 +1,11 @@
-# Etapa 1: construir los binarios necesarios
-FROM alpine:latest AS builder
+FROM alpine:3.18
 
-# Copiamos busybox y creamos el enlace simbólico para /bin/sh
-RUN mkdir -p /out/bin \
-    && cp /bin/busybox /out/bin/busybox \
-    && ln -s busybox /out/bin/sh
+# Instalar dependencias mínimas
+RUN apk add --no-cache curl bash ca-certificates
 
-# Etapa 2: imagen base de Wings
-FROM ghcr.io/pterodactyl/wings:latest
+# Descargar Wings (ajusta la versión)
+RUN curl -L -o /usr/bin/wings https://github.com/pterodactyl/wings/releases/download/v1.11.13/wings-linux-amd64 \
+    && chmod +x /usr/bin/wings
 
-# Copiamos los binarios preparados desde la etapa builder
-COPY --from=builder /out/bin /bin
-
+# Entrypoint original
 ENTRYPOINT ["/usr/bin/wings"]
